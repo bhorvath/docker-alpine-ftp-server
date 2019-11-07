@@ -1,5 +1,16 @@
 #!/bin/sh
 
+#Create a group that all users will be added to
+if [ -z "$GROUP" ]; then
+  GROUP="ftpusers"
+fi
+
+if [ -z "$GID" ]; then
+  GID="2121"
+fi
+
+addgroup -g $GID $GROUP
+
 #Remove all ftp users
 grep '/ftp/' /etc/passwd | cut -d':' -f1 | xargs -n1 deluser
 
@@ -32,9 +43,9 @@ for i in $USERS ; do
     UID_OPT="-u $UID"
   fi
 
-  echo -e "$PASS\n$PASS" | adduser -h $FOLDER -s /sbin/nologin $UID_OPT $NAME
+  echo -e "$PASS\n$PASS" | adduser -G $GROUP -h $FOLDER -s /sbin/nologin $UID_OPT $NAME
   mkdir -p $FOLDER
-  chown $NAME:$NAME $FOLDER
+  chown $NAME:$GROUP $FOLDER
   unset NAME PASS FOLDER UID
 done
 
